@@ -3,7 +3,7 @@ from unittest.mock import patch, Mock
 from polybot.bot import ImageProcessingBot
 import os
 
-img_path = 'polybot/test/beatles.jpeg' if '/polybot/test' not in os.getcwd() else 'beatles.jpeg'
+img_path = 'polybot/test/beatles.jpeg' if os.path.normpath('/polybot/test') not in os.getcwd() else 'beatles.jpeg'
 
 mock_msg = {
     'message_id': 349,
