@@ -1,5 +1,5 @@
 """Module for Image Processing"""
-
+import os
 import random
 from pathlib import Path
 from matplotlib.image import imread
@@ -47,6 +47,19 @@ class Img:
 
         #return the path of the saved file
         return new_path
+
+    def delete(self):
+        """
+        Delete the image file
+        """
+
+        try:
+            os.remove(self.path)
+            return True
+
+        except OSError as error:
+            print(f'File deletion failed. Error: {error}')
+            return error
 
     def blur(self, blur_level=16):
         """
