@@ -1,0 +1,12 @@
+{
+  "text": {
+    "/start": "__*Welcome to the bot\\!*__\n*_Thank you_* so much for coming\\.\\.\ntype `help` to see all available filters and commands",
+    "help": "Here are all the commands:\n\\- */start*: Show the wellcome message\n\\- *help*: Show this message with all available commands",
+    "unknown": "No text command with that text is available\\. type 'help' to see all available commands\\."
+  },
+  "photo": {
+    "processing": "Processing\\.\\.\\.",
+    "no-caption": "This image was sent with no commands in it's caption\\. Type `help` to see all available commands\\.",
+    "unknown": "The underlined command\\(s\\) are note available:\n{0}\nType 'help' to see all available commands\\."
+  }
+}

@@ -3,6 +3,7 @@ from loguru import logger
 import os
 import time
 from telebot.types import InputFile
+import json
 from polybot.img_proc import Img
 
 
@@ -26,7 +27,7 @@ class Bot:
         self.telegram_bot_client.send_message(chat_id, text)
 
     def send_text_with_quote(self, chat_id, text, quoted_msg_id):
-        self.telegram_bot_client.send_message(chat_id, text, reply_to_message_id=quoted_msg_id)
+        self.telegram_bot_client.send_message(chat_id, text, reply_to_message_id=quoted_msg_id, parse_mode='MarkdownV2')
 
     def is_current_msg_photo(self, msg):
         return 'photo' in msg
@@ -61,7 +62,10 @@ class Bot:
         )
 
     def handle_message(self, msg):
-        """Bot Main message handler"""
+        """
+        Bot Main message handler
+        """
+
         logger.info(f'Incoming message: {msg}')
         self.send_text(msg['chat']['id'], f'Your original message: {msg["text"]}')
 
@@ -75,4 +79,65 @@ class QuoteBot(Bot):
 
 
 class ImageProcessingBot(Bot):
-    pass
+
+    TIMEOUT = 30
+
+    def __init__(self, token, telegram_chat_url):
+        super().__init__(token, telegram_chat_url)
+        self.cache = {}
+        with open('polybot/reply_templates/Image_processing_bot_replies.json') as replies_file:
+            self.replies = json.loads(replies_file.read())
+
+    def handle_message(self, msg):
+        logger.info(f'Incoming message: {msg}')
+        if msg['from']['id'] in self.cache and msg['message_id'] <= self.cache[msg['from']['id']]:
+            return
+
+        self.__clean_cache(msg['date'], ImageProcessingBot.TIMEOUT)
+
+        # Separate logic between text messages and photo messages
+        if self.is_current_msg_photo(msg):
+            self.__handle_photo_message(msg)
+        else:
+            self.__handle_text_message(msg)
+
+    def __clean_cache(self, curr_time, timeout):
+        """
+        Delete all older than 'timeout' messages in the cache
+
+        :param curr_time: Current time: Unix time as integer
+        :param timeout: Timeout to delete old messages: positive integer in seconds
+        """
+
+        for user_id, msg in self.cache:
+            if curr_time - msg["date"] > timeout:
+                del self.cache[user_id]
+
+    def __handle_text_message(self, msg):
+        text = self.replies['text'][msg['text']] if 'text' in msg\
+                                                 and msg['text'] in self.replies['text']\
+                                                 else self.replies['text']['unknown']
+
+        self.send_text_with_quote(msg['chat']['id'], text,
+                                  quoted_msg_id=msg['message_id'])
+
+    def __handle_photo_message(self, msg):
+        if 'caption' in msg:
+            parsed_effects = self.ParsedEffects(msg['caption'])
+            # TODO: handle caption
+
+        else:
+            user_id = msg['from']['id']
+
+            # verify if the current image is grouped with the previous photo message
+            if (user_id in self.cache
+                    and 'caption' in self.cache[user_id]
+                    and 'media_group_id' in msg
+                    and 'media_group_id' in self.cache[user_id]
+                    and msg['media_group_id'] == self.cache['media_group_id']):
+                # TODO: handle caption
+                pass
+            else:
+                self.send_text_with_quote(msg['chat']['id'],
+                                          self.replies['photo']['no-caption'],
+                                          quoted_msg_id=msg['message_id'])
