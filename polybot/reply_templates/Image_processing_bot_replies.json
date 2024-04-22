@@ -7,6 +7,14 @@
   "photo": {
     "processing": "Processing\\.\\.\\.",
     "no-caption": "This image was sent with no commands in it's caption\\. Type `help` to see all available commands\\.",
-    "unknown": "The underlined command\\(s\\) are note available:\n{0}\nType 'help' to see all available commands\\."
+    "arg-amount": "{0}:\nAmount of arguments is wrong\\. Should be between {2} to {3}\\. Got {1}\\.",
+    "arg-error": "{0}:\n{1}",
+    "arg-not-color": "Value cannot be convert to color\\.",
+    "arg-not-in-option": "Value is not one of {0}\\.",
+    "arg-out-of-range": "Value should be between {0} to {1}\\.",
+    "arg-not-positive-int": "Value should be a positive whole number",
+    "arg-set-to": "Value should be set to {0}\\.",
+    "arg-wrong-type": "Value is in wrong type\\.",
+    "effect-not-found": "Effect with the name {0} not found\\."
   }
 }

@@ -4,7 +4,9 @@ import os
 import time
 from telebot.types import InputFile
 import json
-from polybot.img_proc import Img
+from polybot.caption_parser import CaptionParser
+from polybot.error import NoCaptionError
+from polybot.response_types import ErrorTypes
 
 
 class Bot:
@@ -26,8 +28,8 @@ class Bot:
     def send_text(self, chat_id, text):
         self.telegram_bot_client.send_message(chat_id, text)
 
-    def send_text_with_quote(self, chat_id, text, quoted_msg_id):
-        self.telegram_bot_client.send_message(chat_id, text, reply_to_message_id=quoted_msg_id, parse_mode='MarkdownV2')
+    def send_text_with_quote(self, chat_id, text, quoted_msg_id, parse_mode = None):
+        self.telegram_bot_client.send_message(chat_id, text, reply_to_message_id = quoted_msg_id, parse_mode = parse_mode)
 
     def is_current_msg_photo(self, msg):
         return 'photo' in msg
@@ -123,9 +125,16 @@ class ImageProcessingBot(Bot):
 
     def __handle_photo_message(self, msg):
         if 'caption' in msg:
-            parsed_effects = self.ParsedEffects(msg['caption'])
-            # TODO: handle caption
+            commands = CaptionParser.parse(msg['caption'])
+            if len(commands) == 0 or commands[0] is NoCaptionError:
+                self.send_text_with_quote(msg['chat']['id'],
+                                          self.replies['photo'][ErrorTypes.NO_CAPTION],
+                                          quoted_msg_id=msg['message_id'])
+                return
 
+            doubles = (command.double for command in commands)
+            # TODO: handle caption
+            print(doubles)
         else:
             user_id = msg['from']['id']
 
@@ -139,5 +148,5 @@ class ImageProcessingBot(Bot):
                 pass
             else:
                 self.send_text_with_quote(msg['chat']['id'],
-                                          self.replies['photo']['no-caption'],
+                                          self.replies['photo'][ErrorTypes.NO_CAPTION],
                                           quoted_msg_id=msg['message_id'])
