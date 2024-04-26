@@ -137,7 +137,6 @@ class ImageProcessingBot(Bot):
             msg['message_id'],
             parse_mode=Bot.ParseMode.MARKDOWN.value)
 
-
     def __reply_error(self, msg, error_type = None, error_args = (), text = None):
         if not text:
             text = self.__parse_response(error_type, error_args)
@@ -157,7 +156,7 @@ class ImageProcessingBot(Bot):
             photo_path,
             self.__parse_response(Photo.SEND),
             msg['message_id'],
-            parse_mode = self.ParseMode.MARKDOWN
+            parse_mode = self.ParseMode.MARKDOWN.value
         )
 
     def __clean_cache(self, curr_time, timeout):
