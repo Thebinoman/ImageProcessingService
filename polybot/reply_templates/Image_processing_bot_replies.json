@@ -1,6 +1,6 @@
 {
   "text": {
-    "/start": "__*Welcome to the bot\\!*__\n*_Thank you_* so much for coming\\.\\.\ntype `help` to see all available filters and commands",
+    "/start": "__*Welcome to the Binoman's Image Processing Bot*__\nThe bot that uses digital effects that are available for the public for decades\\, like rotating and blurring an image\\, while having awful performance and mediocre results\\. All that goodness is brought to you in true RGB with 8\\-bits per channel\\, invented in the 80's with the old and over\\-sized VGA display\\. This is the one bot you never needed and never will\\.\n\nWithout further ado\\, type `help` to see all available commands\\.\\.\\.",
     "document": "Please send the images as photos\\, not as images\\.",
     "unknown": "No text command with that text is available\\. Type `help` to see all available commands\\."
   },
