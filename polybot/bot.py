@@ -11,7 +11,7 @@ from enum import Enum
 from polybot.caption_parser import CaptionParser, EffectCommand
 from polybot.error import NoCaptionError, CommandError
 from polybot.img_proc import Img
-from polybot.response_types import DocumentTypes, ErrorTypes, Photo, Text
+from polybot.response_types import DocumentTypes, ErrorTypes, Photo, Text, Help
 
 
 class Bot:
@@ -95,11 +95,12 @@ class ImageProcessingBot(Bot):
 
     TIMEOUT = 30
 
+    with open('polybot/reply_templates/Image_processing_bot_replies.json') as replies_file:
+        REPLIES = json.loads(replies_file.read())
+
     def __init__(self, token, telegram_chat_url):
         super().__init__(token, telegram_chat_url)
         self.cache = {}
-        with open('polybot/reply_templates/Image_processing_bot_replies.json') as replies_file:
-            self.replies = json.loads(replies_file.read())
 
     def handle_message(self, msg):
         logger.info(f'Incoming message: {msg}')
@@ -114,13 +115,14 @@ class ImageProcessingBot(Bot):
         elif 'document' in msg:
             self.__reply_error(msg, DocumentTypes.Document, 'text')
         else:
-            self.__handle_text_message(msg)
+            if not self.__reply_help(msg):
+                self.__handle_text_message(msg)
 
     def __parse_response(self, response_type, args = (), category = 'photo', parse_mode = Bot.ParseMode.MARKDOWN.value):
         if args:
-            response = f'{self.replies[category][response_type].format(*args)}\n'
+            response = f'{self.REPLIES[category][response_type].format(*args)}\n'
         else:
-            response = self.replies[category][response_type]
+            response = self.REPLIES[category][response_type]
 
         # handle special characters in Telegram's MarkdownV2
         if parse_mode == Bot.ParseMode.MARKDOWN.value:
@@ -143,7 +145,7 @@ class ImageProcessingBot(Bot):
         else:
             text = re.sub(r'(?<!\\)[#().,-]', r'\\\g<0>', text)
 
-        text += f'\n{self.replies['general'][ErrorTypes.ENDING]}'
+        text += f'\n{self.REPLIES['general'][ErrorTypes.ENDING]}'
 
         self.send_text_with_quote(
             msg['chat']['id'], text,
@@ -159,6 +161,27 @@ class ImageProcessingBot(Bot):
             parse_mode = self.ParseMode.MARKDOWN.value
         )
 
+    def __reply_help(self, msg):
+        if 'text' not in msg: return False
+
+        request = msg['text'].strip().lower()
+
+        if not request.startswith('help'):
+            return False
+
+        if request == 'help':
+            self.__reply_text(msg, Help.HELP, category='help')
+            return True
+
+        effect_name = msg['text'][len('help '):].replace('-', '_')
+
+        if effect_name not in self.REPLIES['help']:
+            self.__reply_text(msg, Help.UNKNOWN, [request[len('help '):]], 'help')
+        else:
+            self.__reply_text(msg, effect_name, category = 'help')
+
+        return True
+
     def __clean_cache(self, curr_time, timeout):
         """
         Delete all older than 'timeout' messages in the cache
@@ -172,7 +195,7 @@ class ImageProcessingBot(Bot):
                 del self.cache[user_id]
 
     def __handle_text_message(self, msg):
-        if 'text' in msg and msg['text'] in self.replies['text']:
+        if 'text' in msg and msg['text'] in self.REPLIES['text']:
             self.__reply_text(msg, msg['text'])
         else:
             self.__reply_text(msg, Text.UNKNOWN)
@@ -244,7 +267,7 @@ class ImageProcessingBot(Bot):
         error_responses = []
         for command in commands:
             if type(command) is CommandError:
-                error_responses.append(str.format(self.replies['photo'][command.error_type], command.error_args))
+                error_responses.append(str.format(self.REPLIES['photo'][command.error_type], command.error_args))
 
         if len(error_responses) > 0:
             self.__reply_error(msg, text = '\n'.join(error_responses))
@@ -273,13 +296,13 @@ class ImageProcessingBot(Bot):
             def parse_command_errors(command):
                 def parse_arg(arg):
                     text = f'{arg.error_args[-1]}: {self.__parse_response(arg.error_type, arg.error_args)}'
-                    # text += str.format(self.replies['photo'][arg.error_type],
+                    # text += str.format(self.REPLIES['photo'][arg.error_type],
                     #             *arg.error_args)
                     return text
                 parsed_args = list(map(parse_arg, command.arg_list))
 
                 return str.format(
-                    self.replies['photo'][ErrorTypes.ARG_ERROR],
+                    self.REPLIES['photo'][ErrorTypes.ARG_ERROR],
                     command.arg_list[0].error_args[0], '\n'.join(parsed_args))
 
             parsed_responses = list(map(parse_command_errors, commands_with_errors))

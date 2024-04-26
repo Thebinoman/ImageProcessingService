@@ -9,6 +9,11 @@ class DocumentTypes:
     Document = 'document'
 
 
+class Help:
+    UNKNOWN = 'unknown'
+    HELP = 'help'
+
+
 class ErrorTypes:
     # Effect Errors #
     NO_CAPTION = 'no-caption'
