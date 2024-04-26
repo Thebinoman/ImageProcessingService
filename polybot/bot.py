@@ -1,15 +1,24 @@
+import re
+import string
+
 import telebot
 from loguru import logger
 import os
 import time
 from telebot.types import InputFile
 import json
-from polybot.caption_parser import CaptionParser
-from polybot.error import NoCaptionError
-from polybot.response_types import ErrorTypes
+from enum import Enum
+from polybot.caption_parser import CaptionParser, EffectCommand
+from polybot.error import NoCaptionError, CommandError
+from polybot.img_proc import Img
+from polybot.response_types import DocumentTypes, ErrorTypes, Photo, Text
 
 
 class Bot:
+
+    class ParseMode(Enum):
+        TEXT = None
+        MARKDOWN = 'MarkdownV2'
 
     def __init__(self, token, telegram_chat_url):
         # create a new instance of the TeleBot class.
@@ -28,7 +37,7 @@ class Bot:
     def send_text(self, chat_id, text):
         self.telegram_bot_client.send_message(chat_id, text)
 
-    def send_text_with_quote(self, chat_id, text, quoted_msg_id, parse_mode = None):
+    def send_text_with_quote(self, chat_id, text, quoted_msg_id, parse_mode = ParseMode.TEXT.value):
         self.telegram_bot_client.send_message(chat_id, text, reply_to_message_id = quoted_msg_id, parse_mode = parse_mode)
 
     def is_current_msg_photo(self, msg):
@@ -54,13 +63,15 @@ class Bot:
 
         return file_info.file_path
 
-    def send_photo(self, chat_id, img_path):
+    def send_photo(self, chat_id, img_path, caption = None, quoted_msg_id = None, parse_mode = ParseMode.TEXT.value):
         if not os.path.exists(img_path):
             raise RuntimeError("Image path doesn't exist")
-
         self.telegram_bot_client.send_photo(
             chat_id,
-            InputFile(img_path)
+            InputFile(img_path),
+            caption,
+            parse_mode,
+            reply_to_message_id = quoted_msg_id
         )
 
     def handle_message(self, msg):
@@ -92,7 +103,7 @@ class ImageProcessingBot(Bot):
 
     def handle_message(self, msg):
         logger.info(f'Incoming message: {msg}')
-        if msg['from']['id'] in self.cache and msg['message_id'] <= self.cache[msg['from']['id']]:
+        if msg['from']['id'] in self.cache and msg['message_id'] <= self.cache[msg['from']['id']]['message_id']:
             return
 
         self.__clean_cache(msg['date'], ImageProcessingBot.TIMEOUT)
@@ -100,8 +111,54 @@ class ImageProcessingBot(Bot):
         # Separate logic between text messages and photo messages
         if self.is_current_msg_photo(msg):
             self.__handle_photo_message(msg)
+        elif 'document' in msg:
+            self.__reply_error(msg, DocumentTypes.Document, 'text')
         else:
             self.__handle_text_message(msg)
+
+    def __parse_response(self, response_type, args = (), category = 'photo', parse_mode = Bot.ParseMode.MARKDOWN.value):
+        if args:
+            response = f'{self.replies[category][response_type].format(*args)}\n'
+        else:
+            response = self.replies[category][response_type]
+
+        # handle special characters in Telegram's MarkdownV2
+        if parse_mode == Bot.ParseMode.MARKDOWN.value:
+            response = re.sub(r'(?<![\\\\])[.,-]', r'\\\g<0>', response)
+
+        return response
+
+    def __reply_text(self, msg, response_type = None, response_args = (), category = 'text', text = None, parse_mode = Bot.ParseMode.MARKDOWN.value):
+        if not text:
+            text = self.__parse_response(response_type, response_args, category, parse_mode)
+
+        self.send_text_with_quote(
+            msg['chat']['id'], text,
+            msg['message_id'],
+            parse_mode=Bot.ParseMode.MARKDOWN.value)
+
+
+    def __reply_error(self, msg, error_type = None, error_args = (), text = None):
+        if not text:
+            text = self.__parse_response(error_type, error_args)
+        else:
+            text = re.sub(r'(?<![\\\\])[.,-]', r'\\\g<0>', text)
+
+        text += f'\n{self.replies['general'][ErrorTypes.ENDING]}'
+
+        self.send_text_with_quote(
+            msg['chat']['id'], text,
+            msg['message_id'],
+            parse_mode=Bot.ParseMode.MARKDOWN.value)
+
+    def __reply_photo(self, msg, photo_path):
+        self.send_photo(
+            msg['chat']['id'],
+            photo_path,
+            self.__parse_response(Photo.SEND),
+            msg['message_id'],
+            parse_mode = self.ParseMode.MARKDOWN
+        )
 
     def __clean_cache(self, curr_time, timeout):
         """
@@ -111,30 +168,51 @@ class ImageProcessingBot(Bot):
         :param timeout: Timeout to delete old messages: positive integer in seconds
         """
 
-        for user_id, msg in self.cache:
+        for user_id, msg in self.cache.items():
             if curr_time - msg["date"] > timeout:
                 del self.cache[user_id]
 
     def __handle_text_message(self, msg):
-        text = self.replies['text'][msg['text']] if 'text' in msg\
-                                                 and msg['text'] in self.replies['text']\
-                                                 else self.replies['text']['unknown']
-
-        self.send_text_with_quote(msg['chat']['id'], text,
-                                  quoted_msg_id=msg['message_id'])
+        if 'text' in msg and msg['text'] in self.replies['text']:
+            self.__reply_text(msg, msg['text'])
+        else:
+            self.__reply_text(msg, Text.UNKNOWN)
 
     def __handle_photo_message(self, msg):
         if 'caption' in msg:
             commands = CaptionParser.parse(msg['caption'])
-            if len(commands) == 0 or commands[0] is NoCaptionError:
-                self.send_text_with_quote(msg['chat']['id'],
-                                          self.replies['photo'][ErrorTypes.NO_CAPTION],
-                                          quoted_msg_id=msg['message_id'])
+
+            if len(commands) == 0 or type(commands[0]) is NoCaptionError:
+                self.__reply_error(msg, ErrorTypes.NO_CAPTION)
                 return
 
-            doubles = (command.double for command in commands)
-            # TODO: handle caption
-            print(doubles)
+            got_command_errors = self.__handle_command_errors(msg, commands)
+            if got_command_errors: return
+
+            multies = []
+            for command in commands:
+                if command.multi:
+                    multies.append(command.command_name)
+
+            got_multies_errors = self.__handle_multies_errors(msg, commands, multies)
+            if got_multies_errors: return
+
+            got_arg_errors = self.__handle_args_errors(msg, commands)
+            if got_arg_errors: return
+
+            if len(multies) == 1 and 'media_group_id' in msg:
+                msg['commands'] = commands
+                self.cache[msg['from']['id']] = msg
+                return
+            else:
+                self.__reply_text(msg, Photo.PROCESSING, category='photo')
+
+                result_path, [source_img] = self.__process_image([msg], commands)
+                self.__reply_photo(msg, result_path)
+                source_img.delete()
+                source_img.path = result_path
+                source_img.delete()
+
         else:
             user_id = msg['from']['id']
 
@@ -143,10 +221,82 @@ class ImageProcessingBot(Bot):
                     and 'caption' in self.cache[user_id]
                     and 'media_group_id' in msg
                     and 'media_group_id' in self.cache[user_id]
-                    and msg['media_group_id'] == self.cache['media_group_id']):
-                # TODO: handle caption
-                pass
+                    and msg['media_group_id'] == self.cache[user_id]['media_group_id']
+                    and 'commands' in self.cache[user_id]
+                    and self.cache[user_id]['commands']):
+
+                cached_msg = self.cache[user_id]
+
+                if 'used' in cached_msg: return
+
+                self.__reply_text(msg, Photo.PROCESSING, category='photo')
+
+                result_path, source_imgs = self.__process_image([cached_msg, msg], cached_msg['commands'])
+                self.__reply_photo(msg, result_path)
+                for img in source_imgs:
+                    img.delete()
+                source_imgs[0].path = result_path
+                source_imgs[0].delete()
+                self.cache[user_id]['used'] = True
             else:
-                self.send_text_with_quote(msg['chat']['id'],
-                                          self.replies['photo'][ErrorTypes.NO_CAPTION],
-                                          quoted_msg_id=msg['message_id'])
+                self.__reply_error(msg, ErrorTypes.NO_CAPTION)
+
+    def __handle_command_errors(self,msg, commands):
+        error_responses = []
+        for command in commands:
+            if type(command) is CommandError:
+                error_responses.append(str.format(self.replies['photo'][command.error_type], command.error_args))
+
+        if len(error_responses) > 0:
+            self.__reply_error(msg, text = '\n'.join(error_responses))
+            return True
+
+        return False
+
+    def __handle_multies_errors(self, msg, commands, multies):
+        if len(multies) > 0:
+            if 'media_group_id' not in msg:
+                self.__reply_error(msg, ErrorTypes.NO_2ND_IMAGE, [multies[0]])
+                return True
+            if len(multies) > 1:
+                self.__reply_error(msg, ErrorTypes.TOO_MUCH_MULTI_IMAGE, ['\n'.join(multies)])
+                return True
+
+    def __handle_args_errors(self, msg, commands):
+        commands_with_errors = []
+        for command in commands:
+            error_args_list = list(filter(lambda arg: type(arg) is CommandError, command.arg_list))
+            if len(error_args_list) > 0:
+                commands_with_errors.append(EffectCommand(error_args_list[0].error_args[0],
+                                                          error_args_list))
+
+        if len(commands_with_errors) > 0:
+            def parse_command_errors(command):
+                def parse_arg(arg):
+                    text = f'{arg.error_args[-1]}: {self.__parse_response(arg.error_type, arg.error_args)}'
+                    # text += str.format(self.replies['photo'][arg.error_type],
+                    #             *arg.error_args)
+                    return text
+                parsed_args = list(map(parse_arg, command.arg_list))
+
+                return str.format(
+                    self.replies['photo'][ErrorTypes.ARG_ERROR],
+                    command.arg_list[0].error_args[0], '\n'.join(parsed_args))
+
+            parsed_responses = list(map(parse_command_errors, commands_with_errors))
+            self.__reply_error(msg, text = '\n'.join(parsed_responses))
+            return True
+
+        return False
+
+    def __process_image(self, msgs, commands):
+        imgs = list(map(lambda msg: Img(self.download_user_photo(msg)), msgs))
+
+        for command_data in commands:
+            command = getattr(imgs[0], command_data.command_name)
+            if command_data.multi:
+                command(imgs[1], *command_data.arg_list)
+            else:
+                command(*command_data.arg_list)
+
+        return imgs[0].save_img(), imgs

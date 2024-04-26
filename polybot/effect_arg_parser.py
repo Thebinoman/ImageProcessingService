@@ -2,11 +2,12 @@ from polybot.effect_arg_rules import ArgRangeRule
 from polybot.error import CommandError
 from polybot.response_types import ErrorTypes
 
+
 class EffectArgParser:
-    def __init__(self, arg_amount_start: int, arg_amount_end: int, arg_rule_list: iter, double: bool = False):
+    def __init__(self, arg_amount_start: int, arg_amount_end: int, arg_rule_list: iter, multi: bool = False):
         self.arg_amount_range = ArgRangeRule(arg_amount_start, arg_amount_end)
         self.arg_rule_list = arg_rule_list
-        self.double = double
+        self.multi = multi
 
     def parse(self, arg_list: iter, effect_string: str):
         if self.arg_amount_range.parse(len(arg_list), effect_string) is CommandError:

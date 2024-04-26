@@ -25,10 +25,9 @@ class ArgRangeRule(ArgRuleBase):
                 value = self.convert_func(value)
             except (ValueError, TypeError) as error:
                 return CommandError(
-                    ErrorTypes.ARG_ERROR,
+                    ErrorTypes.ARG_WRONG_TYPE,
                     [
                         effect_string,
-                        replies['photo'][ErrorTypes.ARG_WRONG_TYPE],
                         value
                 ])
 
@@ -36,14 +35,15 @@ class ArgRangeRule(ArgRuleBase):
             return value
         else:
             if self.start != self.end:
-                message = str.format(replies['photo'][ErrorTypes.ARG_OUT_OF_RANGE], [self.start, self.end])
+                error_type = ErrorTypes.ARG_OUT_OF_RANGE
             else:
-                message = str.format(replies['photo'][ErrorTypes.ARG_SET_TO], [self.start])
+                error_type = ErrorTypes.ARG_SET_TO
             return CommandError(
-                ErrorTypes.ARG_ERROR,
+                error_type,
                 [
                     effect_string,
-                    message,
+                    self.start,
+                    self.end,
                     value
             ])
 
@@ -59,10 +59,9 @@ class ArgOptionRule(ArgRuleBase):
                 value = self.convert_func(value)
             except (ValueError, TypeError):
                 return CommandError(
-                    ErrorTypes.ARG_ERROR,
+                    ErrorTypes.ARG_WRONG_TYPE,
                     [
                         effect_string,
-                        replies['photo'][ErrorTypes.ARG_WRONG_TYPE],
                         value
                     ])
 
@@ -70,10 +69,10 @@ class ArgOptionRule(ArgRuleBase):
             return value
         else:
             return CommandError(
-                ErrorTypes.ARG_ERROR,
+                ErrorTypes.ARG_NOT_IN_OPTION,
                 [
                     effect_string,
-                    str.format(replies['photo'][ErrorTypes.ARG_NOT_IN_OPTION], [self.options]),
+                    self.options,
                     value
             ])
 
@@ -84,10 +83,9 @@ class ArgPositiveInt(ArgRuleBase):
             value = int(value)
         except (ValueError, TypeError) as error:
             return CommandError(
-                ErrorTypes.ARG_ERROR,
+                ErrorTypes.ARG_POSITIVE_INT,
                 [
                     effect_string,
-                    replies['photo'][ErrorTypes.ARG_POSITIVE_INT],
                     value
             ])
         if value < 0:

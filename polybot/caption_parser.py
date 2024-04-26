@@ -5,10 +5,10 @@ from polybot.effect_rules import EffectRules
 
 
 class EffectCommand:
-    def __init__(self, command_name: str, arg_list: iter, double: bool = False):
+    def __init__(self, command_name: str, arg_list: iter, multi: bool = False):
         self.command_name = command_name
         self.arg_list = arg_list
-        self.double = double
+        self.multi = multi
 
 
 class CaptionParser:
@@ -27,9 +27,9 @@ class CaptionParser:
             effect_name = effect_name_input.replace('-', '_')
 
             if effect_name not in EffectRules:
-                commands.append(EffectCommand(effect_name, [CommandError(ErrorTypes.EFFECT_NOT_FOUND, [effect_name_input])]))
+                commands.append(CommandError(ErrorTypes.EFFECT_NOT_FOUND, [effect_name_input]))
             else:
                 effect_arg_parser = EffectRules[effect_name]
-                commands.append(EffectCommand(effect_name, effect_arg_parser.parse(effect_args, effect_string), effect_arg_parser.double))
+                commands.append(EffectCommand(effect_name, effect_arg_parser.parse(effect_args, effect_string), effect_arg_parser.multi))
 
         return commands
