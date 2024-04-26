@@ -121,10 +121,18 @@ class Img:
 
             self.data[i] = result
 
-    def rotate(self):
+    def rotate(self, angle = 90):
         """
         Rotates the image clockwise
         """
+
+        # rotate twice for 180 degrees
+        if angle == 180:
+            self.rotate()
+        # rotate 3 times for 270/-90  degrees
+        elif angle == -90 or angle == 270:
+            self.rotate()
+            self.rotate()
 
         # Transpose the Matrix
         transposed_mat = list(zip(*self.data))
