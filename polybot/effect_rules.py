@@ -3,7 +3,7 @@ from polybot.effect_arg_rules import ArgRangeRule, ArgOptionRule, ArgPositiveInt
 
 EffectRules = {
     'blur': EffectArgParser(0, 1, [
-        ArgRangeRule(1, 320)
+        ArgRangeRule(1, 32)
     ]),
     'contour': EffectArgParser(0, 0,[]),
     'rotate': EffectArgParser(0, 1, [
