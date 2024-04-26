@@ -1,0 +1,27 @@
+{
+  "text": {
+    "/start": "__*Welcome to the bot\\!*__\n*_Thank you_* so much for coming\\.\\.\ntype `help` to see all available filters and commands",
+    "help": "Here are all the commands:\n\\- */start*: Show the wellcome message\n\\- *help*: Show this message with all available commands",
+    "document": "Please send the images as photos\\, not as images\\.",
+    "unknown": "No text command with that text is available\\. type `help` to see all available commands\\."
+  },
+  "photo": {
+    "processing": "Processing\\.\\.\\.",
+    "no-caption": "This image was sent with no commands in it's caption\\. Type `help` to see all available commands\\.",
+    "to-much-multi-image": "Multi\\-image effects found:\n{0}\nOnly 1 or less is allowed\\.",
+    "no-2nd-image": "You are using a multi\\-image effect \\(`{0}`\\)\\, but you sent only one image\\. To use multi\\-image effect you must upload two images\\.",
+    "arg-amount": "{0}:\nAmount of arguments is wrong\\. Should be between {2} to {3}\\. Got {1}\\.",
+    "arg-error": "In Effect Command `{0}`:\n{1}",
+    "arg-not-color": "Value cannot be convert to color\\.",
+    "arg-not-in-option": "Value is not one of {1}\\.",
+    "arg-out-of-range": "Value should be between {1} to {2}\\.",
+    "arg-not-positive-int": "Value should be a positive whole number",
+    "arg-set-to": "Value should be set to {0}\\.",
+    "arg-wrong-type": "Value is in wrong type\\.",
+    "effect-not-found": "Effect with the name {0} not found\\.",
+    "send": "Ready"
+  },
+  "general": {
+    "error-ending": "Type `help` for more info\\."
+  }
+}
