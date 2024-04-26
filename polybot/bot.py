@@ -124,7 +124,7 @@ class ImageProcessingBot(Bot):
 
         # handle special characters in Telegram's MarkdownV2
         if parse_mode == Bot.ParseMode.MARKDOWN.value:
-            response = re.sub(r'(?<![\\\\])[.,-]', r'\\\g<0>', response)
+            response = re.sub(r'(?<!\\)[#().,-]', r'\\\g<0>', response)
 
         return response
 
@@ -141,7 +141,7 @@ class ImageProcessingBot(Bot):
         if not text:
             text = self.__parse_response(error_type, error_args)
         else:
-            text = re.sub(r'(?<![\\\\])[.,-]', r'\\\g<0>', text)
+            text = re.sub(r'(?<!\\)[#().,-]', r'\\\g<0>', text)
 
         text += f'\n{self.replies['general'][ErrorTypes.ENDING]}'
 
