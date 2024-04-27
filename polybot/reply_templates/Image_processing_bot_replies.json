@@ -1,8 +1,10 @@
 {
   "text": {
     "/start": "__*Welcome to the Binoman's Image Processing Bot*__\nThe bot that uses digital effects that are available for the public for decades\\, like rotating and blurring an image\\, while having awful performance and mediocre results\\. All that goodness is brought to you in true RGB with 8\\-bits per channel\\, invented in the 80's with the old and over\\-sized VGA display\\. This is the one bot you never needed and never will\\.\n\nWithout further ado\\, type `help` to see all available commands\\.\\.\\.",
+    "hi!": "__*Welcome to the Binoman's Image Processing Bot*__\nThe bot that uses digital effects that are available for the public for decades\\, like rotating and blurring an image\\, while having awful performance and mediocre results\\. All that goodness is brought to you in true RGB with 8\\-bits per channel\\, invented in the 80's with the old and over\\-sized VGA display\\. This is the one bot you never needed and never will\\.\n\nWithout further ado\\, type `help` to see all available commands\\.\\.\\.",
     "document": "Please send the images as photos\\, not as images\\.",
     "unknown": "No text command with that text is available\\. Type `help` to see all available commands\\.",
+    "thanks!": "You are welcome\\!\nIf you're impressed\\, it will be nice if you could message [ronhadad22](https://github\\.com/ronhadad22) and let him know your appreciation\\."
   },
   "help": {
     "unknown": "No effect with the name '{0}' is available\\. Type `help` to see all available commands\\.",
