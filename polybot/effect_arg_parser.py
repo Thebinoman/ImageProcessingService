@@ -10,7 +10,12 @@ class EffectArgParser:
         self.multi = multi
 
     def parse(self, arg_list: iter, effect_string: str):
-        if self.arg_amount_range.parse(len(arg_list), effect_string) is CommandError:
+        if type(self.arg_amount_range.parse(len(arg_list), effect_string)) is CommandError:
             return [CommandError(ErrorTypes.ARG_AMOUNT_ERROR, [effect_string, len(arg_list), self.arg_amount_range.start, self.arg_amount_range.end])]
 
-        return list(map(lambda arg_string, arg_rule: arg_rule.parse(arg_string, effect_string), arg_list, self.arg_rule_list))
+        parsed_args = []
+        for i in range(min(len(arg_list), len(self.arg_rule_list))):
+            print(arg_list[i], effect_string)
+            parsed_args.append(self.arg_rule_list[i].parse(arg_list[i], effect_string))
+
+        return parsed_args

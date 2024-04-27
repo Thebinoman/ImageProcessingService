@@ -270,7 +270,7 @@ class ImageProcessingBot(Bot):
         error_responses = []
         for command in commands:
             if type(command) is CommandError:
-                error_responses.append(str.format(self.REPLIES['photo'][command.error_type], command.error_args))
+                error_responses.append(self.__parse_response(command.error_type, command.error_args))
 
         if len(error_responses) > 0:
             self.__reply_error(msg, text = '\n'.join(error_responses))
@@ -304,12 +304,15 @@ class ImageProcessingBot(Bot):
                     return text
                 parsed_args = list(map(parse_arg, command.arg_list))
 
-                return str.format(
-                    self.REPLIES['photo'][ErrorTypes.ARG_ERROR],
-                    command.arg_list[0].error_args[0], '\n'.join(parsed_args))
+                return self.__parse_response(
+                    ErrorTypes.ARG_ERROR,
+                    [
+                        command.arg_list[0].error_args[0],
+                        '\n'.join(parsed_args)
+                ])
 
             parsed_responses = list(map(parse_command_errors, commands_with_errors))
-            self.__reply_error(msg, text = '\n'.join(parsed_responses))
+            self.__reply_error(msg, text = '\n\n'.join(parsed_responses))
             return True
 
         return False

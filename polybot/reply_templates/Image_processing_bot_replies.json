@@ -2,11 +2,11 @@
   "text": {
     "/start": "__*Welcome to the Binoman's Image Processing Bot*__\nThe bot that uses digital effects that are available for the public for decades\\, like rotating and blurring an image\\, while having awful performance and mediocre results\\. All that goodness is brought to you in true RGB with 8\\-bits per channel\\, invented in the 80's with the old and over\\-sized VGA display\\. This is the one bot you never needed and never will\\.\n\nWithout further ado\\, type `help` to see all available commands\\.\\.\\.",
     "document": "Please send the images as photos\\, not as images\\.",
-    "unknown": "No text command with that text is available\\. Type `help` to see all available commands\\."
+    "unknown": "No text command with that text is available\\. Type `help` to see all available commands\\.",
   },
   "help": {
-    "unknown": "No effect with the name `{0}` is available\\. Type `help` to see all available commands\\.",
-    "help": "*General:*\n\\- /start: Show the wellcome message\n\\- help: Show this message with all available commands\n\n*Effects*\nUpload an image \\(and compress the image\\)\\. In the caption\\, write the effect commands you would like to apply\\. each command start with the command name and it's following arguments\\, seperated by spaces\\. e\\.g\\.:\n```\nsalt\\-n\\-pepper 0\\.3 red #B2FC41\n```\ncommands can be stacked into the caption\\, if they are seperated by a comma\\. e\\.g\\.:\n```\nrotate\\, segment 128\\, concat\n```\n*Important*: You can have only one multi\\-image in a caption\\, and it requires two images to be uploaded at once\\. More on multi\\-image effects\\, read below\\.\\.\\.\n\n*Aguments*\nEach effect have betweeen 0 to 3 arguments\\. Some of them are optional and some are required\\. Read the description of each effect to know more of it's arguments\\.\nThere are 4 types of arguments:\n\\- Positive Integer: needs to be a positive whole number\\. e\\.g\\.: 0 or 1380\n\\- Range: need to be in a specific range\\, like 0 \\- 0\\.5 or 0 \\- 255\nOption Select: need to be one of several given options\\. e\\.g\\.: one of 90\\, \\-90\\, 180\\, 270\n\\- Color: an [HTML color name]\\(https://www\\.w3schools\\.com/cssref/css\\_colors\\.php\\) or [hexadecimal color value]\\(https://www\\.w3schools\\.com/colors/colors\\_hexadecimal\\.asp\\)\\. e\\.g\\.: red or \\#fff or \\#CC4460\\. You can use a [color picker]\\(https://coolors\\.co/cc4460\\) and copy the value you like\\.\n\n*Single Image Effects*\nHere is the list of all single image effects:\n\\- `blur`\n\\- `contour`\n\\- `rotate`\n\\- `salt\\-n\\-pepper`\n\\- `color\\-noise`\n\\- `segment`\n\\- `grayscale`\n\\- `canvas\\-resize`\n\\- `rgb\\-posterize`\nFor more information on each effect\\, type help effect\\-name\\. e\\.g\\.:\n```\nhelp rotate\n```\n\n*Multi\\-Image Effects*\nMulti-image effects require:\n\\- to upload two images and:\n    \\- select group items\n    \\- select compress images\n    \\- write only one multi-image effect in the caption\\. More than one multi-image effect will be rejected\\.\n\nHere is the list of all single image effects:\n\\- `concat`\nFor more information on each effect\\, type `help effect\\-name`\\.",
+    "unknown": "No effect with the name '{0}' is available\\. Type `help` to see all available commands\\.",
+    "help": "*General:*\n\\- /start: Show the wellcome message\n\\- help: Show this message with all available commands\n\n*Effects*\nUpload an image \\(and compress the image\\)\\. In the caption\\, write the effect commands you would like to apply\\. each command start with the command name and it's following arguments\\, seperated by spaces\\. e\\.g\\.:\n```\nsalt\\-n\\-pepper 0\\.3 red \\#B2FC41\n```\ncommands can be stacked into the caption\\, if they are seperated by a comma\\. e\\.g\\.:\n```\nrotate\\, segment 128\\, concat\n```\n*Important*: You can have only one multi\\-image in a caption\\, and it requires two images to be uploaded at once\\. More on multi\\-image effects\\, read below\\.\\.\\.\n\n*Aguments*\nEach effect have betweeen 0 to 3 arguments\\. Some of them are optional and some are required\\. Read the description of each effect to know more of it's arguments\\.\nThere are 4 types of arguments:\n\\- Positive Integer: needs to be a positive whole number\\. e\\.g\\.: 0 or 1380\n\\- Range: need to be in a specific range\\, like 0 \\- 0\\.5 or 0 \\- 255\nOption Select: need to be one of several given options\\. e\\.g\\.: one of 90\\, \\-90\\, 180\\, 270\n\\- Color: an [HTML color name](https://www\\.w3schools\\.com/cssref/css\\_colors\\.php) or [hexadecimal color value]\\(https://www\\.w3schools\\.com/colors/colors\\_hexadecimal\\.asp\\)\\. e\\.g\\.: red or \\#fff or \\#CC4460\\. You can use a [color picker]\\(https://coolors\\.co/cc4460\\) and copy the value you like\\.\n\n*Single Image Effects*\nHere is the list of all single image effects:\n\\- `blur`\n\\- `contour`\n\\- `rotate`\n\\- `salt\\-n\\-pepper`\n\\- `color\\-noise`\n\\- `segment`\n\\- `grayscale`\n\\- `canvas\\-resize`\n\\- `rgb\\-posterize`\nFor more information on each effect\\, type help effect\\-name\\. e\\.g\\.:\n```\nhelp rotate\n```\n\n*Multi\\-Image Effects*\nMulti\\-image effects require:\n\\- to upload two images and:\n    \\- select group items\n    \\- select compress images\n    \\- write only one multi\\-image effect in the caption\\. More than one multi\\-image effect will be rejected\\.\n\nHere is the list of all single image effects:\n\\- `concat`\nFor more information on each effect\\, type `help effect\\-name`\\.",
     "blur": "*Type*: Single Image Effect\n*Description*: Blurs the image\\.\n*Arguments*:\nBlur Level: Optional\\, Range between 1 \\- 32: The strength of the blur effect\\. The higher the value\\, the strongest the effect and longer the time to process\\. Default is 16\\.",
     "contour": "*Type*: Single Image Effect\n*Description*: Creates an effect of contours\\.\n*Arguments*: None\\.",
     "rotate": "*Type*: Single Image Effect\n*Description*: Rotates the image\\.\n*Arguments*:\nAngle: Optional\\, Option [\\-90\\, 90\\, 180\\, 270]: The angle to rotate the image\\. Default is 90\\.",
@@ -23,18 +23,18 @@
     "no-caption": "This image was sent with no commands in it's caption\\. Type `help` to see all available commands\\.",
     "to-much-multi-image": "Multi\\-image effects found:\n{0}\nOnly 1 or less is allowed\\.",
     "no-2nd-image": "You are using a multi\\-image effect \\(`{0}`\\)\\, but you sent only one image\\. To use multi\\-image effect you must upload two images\\.",
-    "arg-amount": "{0}:\nAmount of arguments is wrong\\. Should be between {2} to {3}\\. Got {1}\\.",
+    "arg-amount": "Amount of arguments is wrong\\. Should be between {2} to {3}\\. Got {1}\\.",
     "arg-error": "In Effect Command `{0}`:\n{1}",
     "arg-not-color": "Value cannot be convert to color\\.",
     "arg-not-in-option": "Value is not one of {1}\\.",
     "arg-out-of-range": "Value should be between {1} to {2}\\.",
-    "arg-not-positive-int": "Value should be a positive whole number",
+    "arg-not-positive-int": "Value should be a positive whole number\\.",
     "arg-set-to": "Value should be set to {0}\\.",
     "arg-wrong-type": "Value is in wrong type\\.",
-    "effect-not-found": "Effect with the name {0} not found\\.",
+    "effect-not-found": "Effect with the name '{0}' not found\\.",
     "send": "Ready"
   },
   "general": {
-    "error-ending": "Type `help` for more info\\."
+    "error-ending": "\nType `help` for more info\\."
   }
 }

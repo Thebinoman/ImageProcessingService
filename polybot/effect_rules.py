@@ -19,8 +19,8 @@ EffectRules = {
     ]),
     'segment': EffectArgParser(0, 3, [
         ArgRangeRule(0, 255),
-        ArgColorRule,
-        ArgColorRule
+        ArgColorRule(),
+        ArgColorRule()
     ]),
     'concat': EffectArgParser(0, 2, [
         ArgOptionRule(['horizontal', 'vertical']),

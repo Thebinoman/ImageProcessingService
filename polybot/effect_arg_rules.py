@@ -90,14 +90,14 @@ class ArgPositiveInt(ArgRuleBase):
             ])
         if value < 0:
             return CommandError(
-                ErrorTypes.ARG_ERROR,
+                ErrorTypes.ARG_POSITIVE_INT,
                 [
                     effect_string,
-                    replies['photo'][ErrorTypes.ARG_POSITIVE_INT],
                     value
             ])
         else:
             return value
+
 
 class ArgColorRule(ArgRuleBase):
     def parse(self, value: str, effect_string: str):
@@ -105,10 +105,9 @@ class ArgColorRule(ArgRuleBase):
             value = ImageColor.getrgb(value)
         except ValueError:
             return CommandError(
-                ErrorTypes.ARG_ERROR,
+                ErrorTypes.ARG_NOT_COLOR,
                 [
                     effect_string,
-                    replies['photo'][ErrorTypes.ARG_NOT_COLOR],
                     value
             ])
 
