@@ -219,11 +219,11 @@ class ImageProcessingBot(Bot):
                 if command.multi:
                     multies.append(command.command_name)
 
-            got_multies_errors = self.__handle_multies_errors(msg, commands, multies)
-            if got_multies_errors: return
+            if self.__handle_multies_errors(msg, commands, multies):
+                return
 
-            got_arg_errors = self.__handle_args_errors(msg, commands)
-            if got_arg_errors: return
+            if self.__handle_args_errors(msg, commands):
+                return
 
             if len(multies) == 1 and 'media_group_id' in msg:
                 msg['commands'] = commands
@@ -240,19 +240,19 @@ class ImageProcessingBot(Bot):
 
         else:
             user_id = msg['from']['id']
-
             # verify that the current image is grouped with the previous photo message
             if (user_id in self.cache
                     and 'caption' in self.cache[user_id]
                     and 'media_group_id' in msg
                     and 'media_group_id' in self.cache[user_id]
-                    and msg['media_group_id'] == self.cache[user_id]['media_group_id']
-                    and 'commands' in self.cache[user_id]
-                    and self.cache[user_id]['commands']):
-
+                    and msg['media_group_id'] == self.cache[user_id]['media_group_id']):
                 cached_msg = self.cache[user_id]
 
                 if 'used' in cached_msg: return
+
+                if 'commands' not in self.cache[user_id] or not self.cache[user_id]['commands']:
+                    self.__reply_error(msg, ErrorTypes.NO_CAPTION)
+                    return
 
                 self.__reply_text(msg, Photo.PROCESSING, category='photo')
 
@@ -282,9 +282,15 @@ class ImageProcessingBot(Bot):
         if len(multies) > 0:
             if 'media_group_id' not in msg:
                 self.__reply_error(msg, ErrorTypes.NO_2ND_IMAGE, [multies[0]])
+
                 return True
             if len(multies) > 1:
                 self.__reply_error(msg, ErrorTypes.TOO_MUCH_MULTI_IMAGE, ['\n'.join(multies)])
+
+                # store the msg as used, so the other grouped images will be ignored
+                msg['used'] = True
+                self.cache[msg['from']['id']] = msg
+
                 return True
 
     def __handle_args_errors(self, msg, commands):
