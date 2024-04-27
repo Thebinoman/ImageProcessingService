@@ -120,13 +120,16 @@ class ImageProcessingBot(Bot):
 
     def __parse_response(self, response_type, args = (), category = 'photo', parse_mode = Bot.ParseMode.MARKDOWN.value):
         if args:
-            response = f'{self.REPLIES[category][response_type].format(*args)}\n'
+            # Stringify args and handle special characters in Telegram's MarkdownV2
+            if parse_mode == Bot.ParseMode.MARKDOWN.value:
+                for i, arg in enumerate(args):
+                    if type(arg) is not str:
+                        arg = str(arg)
+                    args[i] = re.sub(r'(?<!\\)[_*\[\]()~`>#+\-=|{}.!]', r'\\\g<0>', arg)
+
+            response = f'{self.REPLIES[category][response_type].format(*args)}'
         else:
             response = self.REPLIES[category][response_type]
-
-        # handle special characters in Telegram's MarkdownV2
-        if parse_mode == Bot.ParseMode.MARKDOWN.value:
-            response = re.sub(r'(?<!\\)[#().,-]', r'\\\g<0>', response)
 
         return response
 
@@ -143,7 +146,7 @@ class ImageProcessingBot(Bot):
         if not text:
             text = self.__parse_response(error_type, error_args)
         else:
-            text = re.sub(r'(?<!\\)[#().,-]', r'\\\g<0>', text)
+            text = re.sub(r'(?<!\\)[_*\[\]()~`>#+\-=|{}.!]', r'\\\g<0>', text)
 
         text += f'\n{self.REPLIES['general'][ErrorTypes.ENDING]}'
 
