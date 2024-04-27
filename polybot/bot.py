@@ -202,7 +202,7 @@ class ImageProcessingBot(Bot):
 
     def __handle_photo_message(self, msg):
         if 'caption' in msg:
-            commands = CaptionParser.parse(msg['caption'])
+            commands = CaptionParser.parse(msg['caption'].lower())
 
             if len(commands) == 0 or type(commands[0]) is NoCaptionError:
                 self.__reply_error(msg, ErrorTypes.NO_CAPTION)
@@ -238,7 +238,7 @@ class ImageProcessingBot(Bot):
         else:
             user_id = msg['from']['id']
 
-            # verify if the current image is grouped with the previous photo message
+            # verify that the current image is grouped with the previous photo message
             if (user_id in self.cache
                     and 'caption' in self.cache[user_id]
                     and 'media_group_id' in msg
