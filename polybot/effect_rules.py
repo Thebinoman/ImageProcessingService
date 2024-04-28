@@ -1,5 +1,14 @@
+"""
+Rules for parsing the arguments for all the effects the user can request.
+In EffectRules dict, all effect commands names must be entered with
+identical names to the name of it method in Img class, when it's value
+must be an EffectArgParser with all its Arg Rules instances.
+"""
+
+# pylint: disable=E0401
 from polybot.effect_arg_parser import EffectArgParser
 from polybot.effect_arg_rules import ArgRangeRule, ArgOptionRule, ArgPositiveInt, ArgColorRule
+# pylint: enable=E0401
 
 EffectRules = {
     'blur': EffectArgParser(0, 1, [
