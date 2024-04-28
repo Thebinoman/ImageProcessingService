@@ -13,7 +13,14 @@ from polybot.response_types import ErrorTypes
 # pylint: disable=R0903
 class EffectArgParser:
     """
-    Parser for arguments of a command.
+    Parser for arguments of a command. Each Effect Arg Parser holds:
+    1. The range of arguments expected from the user (arg_amount_start and arg_amount_end)
+    2. The full list of all its argument rules
+    Each argument can have 1 of 4 types of arguments:
+    1. Ranged argument, of type ArgRangeRule
+    2. Option argument (one value from given options). of type ArgOptionRule
+    3. Positive Integer argument, of type ArgPositiveInt
+    4. Color argument, of type ArgColorRule
     """
 
     def __init__(self,
