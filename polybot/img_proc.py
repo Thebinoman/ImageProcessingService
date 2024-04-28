@@ -130,7 +130,7 @@ class Img:
         if angle == 180:
             self.rotate()
         # rotate 3 times for 270/-90  degrees
-        elif angle == -90 or angle == 270:
+        elif angle in (-90, 270):
             self.rotate()
             self.rotate()
 
