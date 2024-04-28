@@ -4,7 +4,7 @@ from PIL import ImageColor
 from polybot.response_types import ErrorTypes
 from polybot.caption_parser import CommandError
 
-with open('polybot/reply_templates/Image_processing_bot_replies.json') as replies_file:
+with open('polybot/replies/Image_processing_bot_replies.json') as replies_file:
     replies = json.loads(replies_file.read())
 
 
