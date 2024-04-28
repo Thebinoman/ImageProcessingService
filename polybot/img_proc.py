@@ -110,7 +110,7 @@ class Img:
         # Iterate over the rows in the matrix
         for i, row in enumerate(self.data):
             result = []
-            # Iterate ofer the pixels in the row
+            # Iterate over the pixels in the row
             # Start from index 1, and looking back at the previous pixel
             for j in range(1, len(row)):
                 # Calculating the average value of the RGB values
