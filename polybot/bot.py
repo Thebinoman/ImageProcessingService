@@ -284,7 +284,7 @@ class ImageProcessingBot(Bot):
             text = re.sub(r'(?<!\\)[_*\[\]()~`>#+\-=|{}.!]', r'\\\g<0>', text)
 
         # Add consistent ending to the error reply
-        text += f'\n{self.REPLIES['general'][ErrorTypes.ENDING]}'
+        text += f'\n{self.REPLIES["general"][ErrorTypes.ENDING]}'
 
         # Send the error reply
         self.send_text_with_quote(
@@ -590,12 +590,10 @@ class ImageProcessingBot(Bot):
                     :return: The response as a string.
                     """
 
-                    text = f'{
-                        arg.error_args[-1] # The given value of the arg
-                    }: {
-                        # Parse the response
-                        self.__parse_response(arg.error_type, arg.error_args)
-                    }'
+                    # Parse the response of the argument
+                    arg_value = arg.error_args[-1]
+                    arg_response = self.__parse_response(arg.error_type, arg.error_args)
+                    text = f'{arg_value}: {arg_response}'
 
                     # Return the result
                     return text
