@@ -1,321 +1,223 @@
-# Image processing service
+# Welcome to the Binoman's Image Processing Bot
 
+The bot that uses digital effects that are available for the public for decades, like rotating and blurring an image, while having awful performance and mediocre results. All that goodness is brought to you in true RGB with 8-bits per channel, invented in the 80's with the old and over-sized VGA display. This is the one bot you never needed and never will.
 
-In this project, you develop an image processing service. 
-Clients send images to a Telegram chatbot, and choose a filter to apply:
+## Setup
 
-![](.img/demo.gif)
+> [!CAUTION]
+> This repo was created as an experiment. It is not built for production. The following setup guide is for development and testing only. If you want to deploy it for production, do your own research.
 
-# Guidelines
+Here are the steps needed in order to run the bot:
 
-## Create a new GitHub repo 
+- [Install dependencies](#install-dependencies)
+- [Create a bot with _BotFather_](#create-a-bot-with-botfather)
+- [Setup _ngrok_](#ngrok-setup) 
+- [Clone This Repo](#clone-this-repo)
+- [Setup virtual environment](#setup-virtual-environment)
+- [Run the server](#run-the-server) 
 
-Fork this repo, clone it locally and open it in your favorite IDE (PyCharm, VSCode). 
-You can change the `README.md` file content to provide relevant information about your project.
+### Install Dependencies
 
+The bot server is a flask application, running on python and communication with Telegram's API.
 
-## Intro to image processing
+These are the dependencies required to run the bot server in dev environment:
 
-Reference: https://ai.stanford.edu/~syyeung/cvweb/tutorial1.html
+1. [_Telegram Desktop_](#1-telegram-desktop)
+2. [_Python_ >= 3.9](#2-python)
+3. [_ngrok_](#3-nkrok)
+4. [_git_](#4-git) 
 
-### What is a digital image?
+Lets go over them...
 
+#### 1. Telegram Desktop
 
-If we take a closer look on a digital image, we will notice it comprised of individual pixels, 
-each pixel has its own value. For a grayscale image, each pixel would have an **intensity** value between 0 and 255, with 0 being black and 255 being white. 
+_Telegram Desktop_ is just for conveniency, but you must at least install it on your mobile phone. You can download and install _Telegram Desktop_ from <a href="https://desktop.telegram.org/" target="_blank">here</a>.
+> [!NOTE] 
+> You will probably have to download the _Telegram_ app on your mobile device, and connect it to your _Telegram Desktop_ app.
 
-![](.img/pixel.gif)
+#### 2. Python
 
-A grayscale image, then, can be represented as a matrix of pixel values:
+You can find instructions of how to install _Python_ on all platforms <a href="https://realpython.com/installing-python/" target="_blank">here</a>.
+The bot should work on _Python 3.9_, and maybe even older, but it must be _Python 3_. This repo was tested on _Python 3.11.4_ and _3.12.2_.
 
-![](.img/imagematrix.png)
+#### 3. nkrok
 
-A color image is just a simple extension of this. The colors are constructed from a combination of Red, Green, and Blue (RGB). Instead of one matrix of pixel values, we use 3 different matrix, one for the Red (R) values, one for Green (G), and one Blue (B) values. 
+_nkrok_ is also not a real requirement, but it is highly recommended. It exposes your port to the internet with much lower risk than you probably do yourself.
+For instructions on how to download and install _ngrok_ please visit <a href="https://ngrok.com/download" target="_blank">here</a>.
+<br>**TL:DR**: On _Windows_ it is recommended to install _ngrok_ using _Chocolatey_, on _Mac_ use _Homebrew_ and on _Linux_ it depends on your destro and your machine's architecture.
 
-<img src=".img/colorpixels.png" width="50%">
+#### 4. git
 
-As can be seen, each pixel of the image has three channels, represent the red, green, blue values. 
+It is also possible to avoid installing git. We use it to clone this repo. If you don't want to install it, you can download the zip file from this page instead of cloning.
+<a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git" target="_blank">Here</a> are the instructions of how to download and install git on your platform.
 
-Python-wise, a digital grayscale image is essentially a list of lists:
+## Create a bot with _BotFather_
 
-![](.img/pythonimage.png)
-
-Each element in the `image` list is a list represented a **row** of pixels. 
-
-### Image filtering
-
-Filtered images are ubiquitous in our social media feeds, news articles, books—everywhere!
-Image filtering is a technique in image processing that involves modifying or enhancing an image by applying a filter to it.
-Filters can be used to remove noise, sharpen edges, blur or smooth the image, or highlight specific features or details, among other effects.
-
-Python-wise, image filtering is as simple as manipulate the pixel values. 
-
-## Implement image filters
-
-Under `polybot/img_proc.py`, the `Img` class is designed for image filtering on grayscale images.
-Here is a detailed usage instruction for the class:
-
-#### Creating an instance of `Img`
-
-Provide the path to the image file as a parameter when creating an instance of the `Img` class, for example:
-
-```python
-my_img = Img('path/to/image.jpg')
-```
-
-#### Saving the modified image
-
-After performing operations on the image, you can save the modified image using the `save_img()` method, for example:
-
-```python
-my_img.save_img()
-```
-
-This will save the modified grayscale image to a new path with an appended `_filtered` suffix, and uses the same file extension.
-
-### Filters for you to implement
-
-
-In this exercise you are required to implement **at least one** filter from the below list (`concat()`, `rotate()`, `salt_n_pepper()`, `segment()`).
-You have to implement the filter using **Python builtin functionality only**. Don't use external packages like numpy, Pillow, openVC, etc. 
-
-On every error (e.g. image path doesn't exist, input image is not an RGB) you should raise a `RuntimeError` exception.
-
-
-#### Concatenating images
-
-The `concat()` method is meant to concatenate two images together horizontally (side by side).
-
-
-Implementation instruction for horizontal concatenation:   
-- Check the dimensions of both images to ensure they are compatible for concatenation. If the dimensions are not compatible (e.g., different heights), raise a `RuntimeError` exception with informative message.
-- Combine the pixel values of both images to create a new image. For horizontal concatenation, combine each row of the first image with the corresponding row of the second image.
-- Store the resulting concatenated image in the `self.data` attribute of the instance. 
-
-```python
-my_img = Img('path/to/image.jpg')
-another_img = Img('path/to/image2.jpg')
-my_img.concat(another_img) 
-my_img.save_img()   # concatenated image was saved in 'path/to/image_filtered.jpg'
-```
-
-Note: you can optionally use the `direction` argument to implement `vertical` concatenation as well.
-
-#### Adding "salt and pepper" noise to the image
-
-The `salt_n_pepper()` noise method applies a type of image distortion that randomly adds isolated pixels with value of either 255 (maximum white intensity) or 0 (minimum black intensity).
-The name "salt and pepper" reflects the appearance of these randomly scattered bright and dark pixels, resembling grains of salt and pepper sprinkled on an image.
-
-Implementation instruction:   
- 1. Iterate over the pixels of the image by looping through each row and each pixel value.
- 2. For each pixel in the image:
-     - Randomly generate a number between 0 and 1.
-     - If the random number is less than 0.2, set the pixel value to the maximum intensity (255) to represent salt.
-     - If the random number is greater than 0.8, set the pixel value to the minimum intensity (0) to represent pepper.
-     - If neither condition is met (the random number is in between 0.2 to 0.8), keep the original pixel value without any modification.
-
-
-```python
-my_img = Img('path/to/image.jpg')
-my_img.salt_n_pepper() 
-my_img.save_img()  # noisy image was saved in 'path/to/image_filtered.jpg'
-```
-
-#### Rotating the image
-
-The `rotate()` method rotates an image around its center in a clockwise direction.
+1. If you haven't already, install [_Telegram Desktop_ or _Telegram Mobile_ application](#1-telegram-desktop).
+2. Go to <a href="https://t.me/botfather" target="_blank">this link</a> to start talking to _BotFather_.
+3. Use the  `/newbot`  command to create a new bot. It will ask you to:
+	a. **Choose a _name_ for your bot**
+	This will be the name displayed in _Telegram_'s interface.
+	b. **choose a _username_ for your bot**
+	This will be the url for you bot like this: `https://t.me/<username>`
+> [!WARNING] 
+> You cannot change the _username_ after you create the bot. You can change the _name_ however.
+4. After creating the bot successfully, _BotFather_ will reply with a message to congrat you for your new bot. In this message, you should find a token string that looks like this:
+	```
+	110201543:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw
+	```
+	You will need this token later
+> [!IMPORTANT]
+> **Never** share tokens with anyone, and **DON'T** commit your tokens in Git repos, even if the repo is private.
     
-Implementation remarks:   
-The resulting rotated image will have its rows become the columns, and the columns will become the rows. The pixels in the rotated image will be repositioned based on a clockwise rotation around the center of the original image. For example, the first row in the original image will become the last column in the rotated image, the second row will become the second-to-last column, and so on.  
+You should also see the URL of your bot in the message (`https://t.me/<username>`). You can click on it to chat with the bot. The bot will not answer back, because we haven't setup and got the bot running yet.
 
-```python
-my_img = Img('path/to/image.jpg')
-my_img.rotate() 
-my_img.rotate()  # rotate again for a 180 degrees rotation
-my_img.save_img()   # rotated image was saved in 'path/to/image_filtered.jpg'
-```
+## _ngrok_ Setup
+> [!NOTE] 
+> _ngrok_ is not required but highly recommended. It securely exposes a port for you to the internet and gives you a temporary URL, so Telegram could communicate with your bot server. If you prefer to do it differently, do your own research.
 
-#### Segmenting the image
+Please follow these steps to setup _ngrok_
+1. If you haven't already, [download and install _ngrok_](#3-nkrok).
+2. Go to <a href="https://ngrok.com/" target="_blank">https://ngrok.com/</a> and signup.
+3. After signing in, you should see a line like this:
+	```bash
+	ngrok config add-authtoken <your-authtoken>
+	```
+	Run this line, with the token you see in _ngrok_'s site, in your terminal (_bash_/_Powershell_/_CMD_).
+>[!NOTE] You need to run the line above only once.
+4. Then, run the next line:
+	```bash
+	ngrok http 8443
+	```
+	Your bot public URL is the URL specified in the `Forwarding` line.
+	e.g. `https://16ae-2a06-c701-4501-3a00-ecce-30e9-3e61-3069.ngrok-free.app`
+5. Keep _ngrok_ running in your terminal, and we will also need this URL later...
 
-The `segment()` method partitions the image into regions where the pixels have similar attributes, so the image is represented in a more simplified manner, and so we can then identify objects and boundaries more easily.
+## Clone This Repo
 
-Implementation instruction:   
- 1. Iterate over the pixels of the image by looping through each row and each pixel value.
- 2. All pixels with an intensity greater than 100 are replaced with a white pixel (intensity 255) and all others are replaced with a black pixel (intensity 0). 
+### Option 1 - _git_
 
-```python
-my_img = Img('path/to/image.jpg')
-my_img.segment() 
-my_img.save_img()
-```
+1. If you decided to [install _git_](#4-git), go to the location you would like to copy this repo to. 
+<br>e.g. `C:\Users\MyUser\Projects\ImageProcessingBot\` on _Windows_,
+<br>or `/home/myuser/Projects/ImageProcessingBot/ on _Linux_ or _Mac_`.
+<br>You can copy it wherever you like.
+2. Then run this command:
+	```bash
+	git clone https://github.com/Thebinoman/ImageProcessingService.git .
+	```
+	It will copy all this repo into the folder your terminal is running from.
 
-### Filters for inspiration
+### Option 2 - Download and extract zip file
 
-The below two filters was already implemented, you can review these functions to get some inspiration of how might a filter implementation look like. 
+1. If you do not want to install git, just download the repo from the top of this page. You should see a green button with `<> code` in it. Click on it. You should be able to download a zip file from the popup menu.
+2. Download the zip file and extract it to a location of your liking.
 
-#### Blurring the image
+## Setup Virtual Environment
+We need to setup a virtual environment for _Python_, install all dependency packages, and set the needed environment variables.
+> [!WARNING] 
+> When running _Python 3_, on some systems it's executable called simply `python`, and on some `python3`. Please ensure you are using the right one for your system.
 
-The `blur()` method is already implemented. You can control the blurring level `blur_level` argument (default is 16).
-   It blurs the image by replacing the value of each pixel by the average of the 16 pixels around him (or any other value, controlled by the `blur_level` argument. The bigger the value, the stronger the blurring level).
+Folow these steps:
+1. [Create new virtual environment](#create-new-virtual-environment) 
+2. [Inject environment variables](#inject-virtual-environment)
+3. [Activate virtual environment](#activate-the-virtual-environment) 
+4. [Install dependency packages](#install-dependency-packages) 
+5. [Run the server!](#run-the-server) 
 
-```python
-my_img = Img('path/to/image.jpg')
-my_img.blur()   # or my_img.blur(blur_level=32) for stronger blurring effect
-my_img.save_img()
-```
+### Create New Virtual Environment
 
-#### Creating a contour of the image
+1. Go to the location you cloned or exported this repo. For consistency, lets call this folder _"ImageProcessingBot"_.
+2. Run the following command:
+	```bash
+	python -m venv venv
+	```
+	A new folder named `venv` should appear in your _"ImageProcessingBot"_ folder.
 
-The `contour()` method is already implemented. It applies a contour effect to the image by calculating the **differences between neighbor pixels** along each row of the image matrix.
+### Inject Virtual Environment
 
-```python
-my_img = Img('path/to/image.jpg')
-my_img.contour() 
-my_img.save_img()
-```
+We need to inject two environment variables into our new virtual environment. This process is a bit different on each terminal type:
 
-### Test your filters locally
+#### On _Mac_ or _Linux_
 
-Under `polybot/test` you'll find unittests for each filter.
+1. With the editor of your choice, edit the file `ImageProcessingBot/venv/bin/activate`
+2. Add the following lines at the top of the file, before all text:
+	```bash
+	export TELEGRAM_TOKEN="<your bot token>"
+	export TELEGRAM_APP_URL="<fowarding URL from ngrok>"
+	```
 
-For example, to execute the test suite for the `concat()` filter, run the below command from the root dir of your repo:
+#### On _CMD_
 
+1. With the editor of your choice, edit the file `ImageProcessingBot\venv\bin\activate.bat`
+2. Add the following lines at the top of the file, before all text:
+	```powershell
+	set TELEGRAM_TOKEN="<your bot token>"
+	set TELEGRAM_APP_URL="<fowarding URL from ngrok>"
+	```
+
+#### On _PowerShell_
+
+1. Create a new file in `ImageProcessingBot\venv\bin\` and call it `Activate with Vars.ps1`.
+> [!IMPORTANT]
+> Make sure the extension of the file is `.ps1` and not something else like `.ps1.txt`. By default, the extension of the file is hidden in _Windows Explorer_. Go to `View` and check `File name extensions` to see the extensions of all files.
+2. In the editor of your choice, edit the file, and add the following content:
+	```powershell
+	$Env:TELEGRAM_TOKEN  =  "<your bot token>"
+	$Env:TELEGRAM_APP_URL  =  "<fowarding URL from ngrok>"
+	&  "$(Split-Path  $MyInvocation.MyCommand.Path)/Activate.ps1"
+	```
+
+#### Finally
+
+1. Replace `<your bot token>` with the [token you received from _BotFather_](#create-a-bot-with-botfather) when you created the bot. It should look something like this: `110201543:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw`.
+2. Replace `<fowarding URL from ngrok>` with the forwarding URL that is running on _ngrok_. It should look something like this: `https://16ae-2a06-c701-4501-3a00-ecce-30e9-3e61-3069.ngrok-free.app`.
+3. Save the file.
+> [!NOTE]
+> The token will stay the same every time you run the server. However the forwarding URL will change every time you start _ngrok_. You have to re-edit the file and replace the injected URL.
+
+### Activate The Virtual Environment
+From _"ImageProcessingBot"_, according to your system run the following:
+
+#### On _Linux_ or _Mac_
 ```bash
-python -m polybot.test.test_concat
+venv/bin/activate
+```
+#### On _CMD_
+```powershell
+venv\Scripts\activate
 ```
 
-An alternative way is to run tests from the Pycharm UI. 
+#### On _PowerShell_
 
-## Create a Telegram Bot
+You may need to run this line before running the file:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+You will only have to run it once.
 
-1. <a href="https://desktop.telegram.org/" target="_blank">Download</a> and install telegram desktop (you can use your phone app as well).
-2. Once installed, create your own Telegram Bot by following <a href="https://core.telegram.org/bots/features#botfather">this section</a> to create a bot. Once you have your telegram token you can move to the next step.
+Then, run this line:
+```powershell
+& '.\venv\Scripts\Activate with Vars.ps1'
+```
 
-**Never** commit your telegram token in Git repo, even if the repo is private.
-For now, we will provide the token as an environment variable to your chat app. 
-Later on in the course we will learn better approaches to store sensitive data.
+#### Finally
 
-## Running the Telegram bot locally
+You should see `(venv)` before the new line in your terminal, that indicate that the virtual environment is activated.
 
-The Telegram app is a flask-based service that responsible for providing a chat-based interface for users to interact with your image processing functionality. 
-It utilizes the Telegram Bot API to receive user images and respond with processed images. 
+### Install Dependency Packages
 
-The code skeleton for the bot app is already given to you under `polybot/app.py`.
-In order to run the server, you have to [provide 2 environment variables](https://www.jetbrains.com/help/objc/add-environment-variables-and-program-arguments.html#add-environment-variables):
-
-1. `TELEGRAM_TOKEN` which is your bot token.
-2. `TELEGRAM_APP_URL` which is your app public URL provided by Ngrok (will be discussed soon).
-
-Implementing bot logic involves running a local Python script that listens for updates from Telegram servers.
-When a user sends a message to the bot, Telegram servers forward the message to the Python app using a method called **webhook** (**long-polling** and **websocket** are other possible methods which wouldn't be used in this project).
-The Python app processes the message, executes the desired logic, and may send a response back to Telegram servers, which then delivers the response to the user.
-
-The webhook method consists of simple two steps:
-
-Setting your chat app URL in Telegram Servers:
-
-![](.img/webhook1.png)
-
-Once the webhook URL is set, Telegram servers start sending HTTPS POST requests to the specified webhook URL whenever there are updates, such as new messages or events, for the bot. 
-
-![](.img/webhook2.png)
-
-
-You've probably noticed that setting `localhost` URL as the webhook for a Telegram bot can be problematic because Telegram servers need to access the webhook URL over the internet to send updates.
-As `localhost` is not accessible externally, Telegram servers won't be able to reach the webhook, and the bot won't receive any updates.
-
-[Ngrok](https://ngrok.com/) can solve this problem by creating a secure tunnel between the local machine (where the bot is running) and a public URL provided by Ngrok.
-It exposes the local server to the internet, allowing Telegram servers to reach the webhook URL and send updates to the bot.
-
-Sign-up for the Ngrok service (or any another tunneling service to your choice), then install the `ngrok` agent as [described here](https://ngrok.com/docs/getting-started/#step-2-install-the-ngrok-agent). 
-
-Authenticate your ngrok agent. You only have to do this once:
-
+From _"ImageProcessingBot"_, run this line:
 ```bash
-ngrok config add-authtoken <your-authtoken>
+pip install -r polybot/requirements.txt
 ```
+You should see pip installing the packages.
 
-Since the telegram bot service will be listening on port `8443`, start ngrok by running the following command:
+### Run The Server!
 
+If everything done correctly, you could run the following line, and the bot should be alive and active:
 ```bash
-ngrok http 8443
+python -m polybot.app
 ```
 
-Your bot public URL is the URL specified in the `Forwarding` line (e.g. `https://16ae-2a06-c701-4501-3a00-ecce-30e9-3e61-3069.ngrok-free.app`).
-Don't forget to set the `TELEGRAM_APP_URL` env var to your URL. 
-
-In the next step you'll finally run your bot app.
-
-## Running a simple "echo" Bot - the `Bot` class
-
-Under `polybot/bot.py` you are given a class called `Bot`. This class implements a simple telegram bot, as follows.
-
-The constructor `__init__` receives the `token` and `telegram_chat_url` arguments.
-The constructor creates an instance of the `TeleBot` object, which is a pythonic interface to Telegram API. You can use this instance to conveniently communicate with the Telegram servers.
-Later, the constructor sets the webhook URL to be the `telegram_chat_url`. 
-
-The `polybot/app.py` is the main app entrypoint. It's nothing but a simple flask webserver that uses a `Bot` instance to handle incoming messages, caught in the `webhook` endpoint function.
-
-The default behavior of the `Bot` class is to "echo" the incoming messages. Try it out!
-
-## Extending the echo bot - the `QuoteBot` class
-
-In `bot.py` you are given a class called `QuoteBot` which **inherits** from `Bot`.
-Upon incoming messages, this bot echoing the message while quoting the original message, unless the user is asking politely not to quote.
-
-In `app.py`, change the instantiated instance to the `QuoteBot`:
-
-```python
-- Bot(TELEGRAM_TOKEN, TELEGRAM_APP_URL)
-+ QuoteBot(TELEGRAM_TOKEN, TELEGRAM_APP_URL)
-```
-
-Run this bot and check its behavior.
-
-## Build your image processing bot - the `ImageProcessingBot` class
-
-In `bot.py` you are given a class called `ImageProcessingBot` which **inherits** from `Bot`, again.
-Upon incoming **photo messages**, this bot downloads the photos and processes them according to the **`caption`** field provided with the message.
-The bot will then send the processed image to the user.
-
-A few notes:
-
-- Inside the `ImageProcessingBot` class, override `handle_message` method and implement the needed functionality.
-- Remember that by inheriting the `Bot` class, you can use all of its methods (such as `send_text`, `download_user_photo`, `send_photo`...). 
-- Possible `caption` values are: `['Blur', 'Contour', 'Rotate', 'Segment', 'Salt and pepper', 'Concat']`.
-
-**Note**: Your bot should support the `Blur` and `Contour` filters (those filters have already implemented for you). 
-
-Test your bot on real photos and make sure it's functioning properly.
-
-## Test your bot locally
-
-You can test your bot logic locally by:
-
-```bash
-python -m polybot.test.test_telegram_bot
-```
-
-Or via the Pycharm UI. 
-
-
-## Extend your bot functionality
-
-Add any functionality you wish to your bot...
-
-- Greet the user.
-- Add some informative message when user sends photos without captions or with invalid caption value.
-- Add your own filters.
-- Extend the functionality of the filters, e.g. allow users to specify "Rotate 2" to rotate the image twice).
-
-**Go wild!!!** 
-
-
-## Submission 
-
-
-You don't need to send anything as we already have access to your fork (make sure your forked repo is public).
-You will be graded by the automated tests running in GitHub action **in your fork**, make sure you pass them.
-
-
-## Good luck
+## Done!
+If haven't already, go to the URL of your bot (`https://t.me/<username>`). You should find it in your [conversation with _BotFather_](#create-a-bot-with-botfather). You can now say `Hi!` to your new image processing bot!
