@@ -481,7 +481,7 @@ class ImageProcessingBot(Bot):
                 source_imgs[0].delete()
                 self.cache[user_id]['used'] = True
 
-            # If there is no chached related message,
+            # If there is no cached related message,
             # and there is no caption to the message,
             # reply with a no caption error
             else:

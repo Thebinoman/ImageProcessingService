@@ -301,6 +301,7 @@ class Img:
         """
         Posterize effect in the combination of full (255) and empty (0)
         Red, Green and Blue values, according to the threshold.
+
         :param threshold: The threshold that separates between
         empty (0 value) and white (255 value) of each channel, of each pixel:
         integer between 0 - 255. Default is 100.
