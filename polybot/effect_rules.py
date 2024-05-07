@@ -43,5 +43,6 @@ EffectRules = {
     ]),
     'rgb_posterize': EffectArgParser(0, 1, [
         ArgRangeRule(0, 255)
-    ])
+    ]),
+    'multiply': EffectArgParser(0, 0,[], True)
 }

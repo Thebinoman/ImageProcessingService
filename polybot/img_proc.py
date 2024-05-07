@@ -317,3 +317,27 @@ class Img:
                     # if the value of the channel is larger than the threshold,
                     # it will set to full (255). Otherwise, it will set to empty (0)
                     self.data[y][x][ci] = 255 if channel > threshold else 0
+
+    def multiply(self, other_img):
+        """
+        Multiplies the color between two images.
+        It blends the dark parts of the second image on top of the other.
+
+        :param other_img: The second image to be added: instance of Img class
+        """
+
+        # set "other_img" to a new deep copy, so the original data will not be altered
+        other_img = Img(other_img.path)
+
+        height = max(len(self.data), len(other_img.data))
+        width = max(len(self.data[0]), len(other_img.data[0]))
+
+        self.canvas_resize(width, height)
+        other_img.canvas_resize(width, height)
+
+        for y, row in enumerate(self.data):
+            # x is the index of the pixel in the row
+            for x, pixel in enumerate(row):
+                # ci is the index of the channel
+                for ci, channel in enumerate(pixel):
+                    self.data[y][x][ci] = channel * other_img.data[y][x][ci] // 255
