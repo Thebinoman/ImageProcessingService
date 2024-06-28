@@ -52,7 +52,6 @@ class EffectArgParser:
 
         parsed_args = []
         for i in range(min(len(arg_list), len(self.arg_rule_list))):
-            print(arg_list[i], effect_string)
             parsed_args.append(self.arg_rule_list[i].parse(arg_list[i], effect_string))
 
         return parsed_args

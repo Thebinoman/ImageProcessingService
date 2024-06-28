@@ -58,7 +58,6 @@ class Img:
             return True
 
         except OSError as error:
-            print(f'File deletion failed. Error: {error}')
             return error
 
     def blur(self, blur_level=16):
